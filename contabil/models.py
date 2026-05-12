@@ -1,26 +1,40 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from decimal import Decimal
 
-class Conta(models.Model):
-    #Tabela de contas financeiras
-    nome = models.CharField(max_length=100, verbose_name="Nome da Conta")
-    descricao = models.TextField(blank=True, null=True, verbose_name="Descrição")
-    criado_em = models.DateTimeField(auto_now_add=True, verbose_name="Criado em")
-    atualizado_em = models.DateTimeField(auto_now=True, verbose_name="Atualizado em")
-    user = models.ForeignKey(
-        User, 
-        on_delete=models.SET_NULL, 
-        null=True
+class PlanoDeContas(models.Model):
+    #Plano de Contas - Estrutura hierárquica de contas contábeis
+    TIPO_CHOICES = [
+        ('ATIVO', 'Ativo'),
+        ('PASSIVO', 'Passivo'),
+        ('PATRIMONIO', 'Patrimônio Líquido'),
+        ('RECEITA', 'Receita'),
+        ('DESPESA', 'Despesa'),
+    ]
+    NATUREZA_CHOICES = [
+        ('DEVEDORA', 'Devedora'),
+        ('CREDORA', 'Credora'),
+    ]
+    codigo = models.CharField(max_length=20, unique=True)
+    nome = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
+    natureza = models.CharField(max_length=10, choices=NATUREZA_CHOICES)
+    conta_pai = models.ForeignKey(
+        'self', null=True, blank=True, on_delete=models.CASCADE, related_name='subcontas'
     )
+    descricao = models.TextField(blank=True)
+    ativa = models.BooleanField(default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "Conta"
-        verbose_name_plural = "Contas"
-        ordering = ["nome"]
+        verbose_name = "Plano de Conta"
+        verbose_name_plural = "Plano de Contas"
+        ordering = ['codigo']
 
     def __str__(self):
-        return self.nome
+        return f'{self.codigo} - {self.nome}'
 
 class Operacao(models.Model):
     TIPO_CHOICES = [
@@ -54,4 +68,4 @@ class Operacao(models.Model):
         ordering = ["-dataoperacao", '-criado_em']
 
     def __str__(self):
-        return f"{self.conta.nome - self.descricao}"
+        return f"{self.conta.nome} - {self.descricao}"
