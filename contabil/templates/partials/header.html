@@ -1,10 +1,10 @@
-    <header class="main-header-container">
-        <div class="main-header container">
-            <h2>
-                <a class="main-logo" href="/">
-                    <i class="fas fa-address-book main-logo-icon"></i>
-                    <span>Família M&M</span>
-                </a>
-            </h2>
+    <nav>
+        <div class="nav-inner">
+            <a href="{% url 'contabil:home' %}" class="nav-brand">
+                Finanças <span>Família</span> M&M
+            </a>
+            <div class="nav-links">
+                <a href="{% url 'contabil:home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Dashboard</a>
+            </div>
         </div>
-    </header>
+    </nav>

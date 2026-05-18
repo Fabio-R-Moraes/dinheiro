@@ -1,17 +1,6 @@
 {% include 'partials/head.html' %}
 <body>
     {% include 'partials/header.html' %}
-    <nav>
-        <div class="nav-inner">
-            <a href="{% url 'contabil:home' %}" class="nav-brand">
-                Finanças <span>Família</span> M&M
-            </a>
-            <div class="nav-links">
-                <a href="{url 'contabil:home'}" {% if request.resolver match.url_name == 'home' %}class="active"{% endif %}>Dashboard</a>
-            </div>
-        </div>
-    </nav>
-
     <main>
         {% if messages %}
         <div class="messages">

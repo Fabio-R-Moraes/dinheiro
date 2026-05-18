@@ -15,7 +15,7 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        hoje = date.today
+        hoje = date.today()
 
         #Semana atual, segunda até domingo
         dia_semana = hoje.weekday() #0 = segunda-feira
