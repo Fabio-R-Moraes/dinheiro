@@ -12,7 +12,34 @@
         </div>
         {% endif %}
 
-        {% block content %} {% endblock %}
+        <div class="page-header">
+            <h1>Dashboard Financeiro</h1>
+            <p class="subtitle">
+                Hoje é {{ hoje|date:"l, d \d\e F \d\e Y" }} &nbsp;&nbsp;
+                Semana Atual: {{ inicio_semana_atual|date:"d/m" }} a {{ fim_semana_atual|date:"d/m" }}
+            </p>
+        </div>
+
+        <!-- KPIs da semana atual-->
+         <div class="kpi-grid mb-4">
+            <div class="kpi-card receita">
+                <div class="kpi-label">↑ Receitas desta semana</div>
+                <div class="kpi-value">R$ {{ total_receitas_atual|floatformat:2 }}</div>
+                <div class="kpi-sub">{{ receitas_atual.count }} lançamento {{ receitas_atual.count|pluralize }}</div>
+            </div>
+            <div class="kpi-card despesa">
+                <div class="kpi-label">↓ Despesas desta semana</div>
+                <div class="kpi-value">R$ {{ total_despesas_atual|floatformat:2 }}</div>
+                <div class="kpi-sub">{{ despesas_atual.count }} lançamento {{despesas_atual.count|pluralize }}</div>
+            </div>
+            <div class="kpi-card {% if saldo_atual >= 0 %}saldo-pos{% else %}saldo-neg{% endif %}">
+                <div class="kpi-label">= Saldo da semana</div>
+                <div class="kpi-value">
+                    {% if saldo_atual >= 0 %}+{% endif %}R$ {{ saldo_atual|floatformat:2 }}
+                </div>
+                <div class="kpi-sub">{% if saldo_atual >= 0 %}Superávit ✓{% else %}Déficit - Atenção{% endif %}</div>
+            </div>
+         </div>
     </main>
     <footer>
         Finanças Família M&M - Método das partidas dobradas &copy; {% now "Y" %}
