@@ -21,7 +21,7 @@
         </div>
 
         <!-- KPIs da semana atual-->
-         <div class="kpi-grid mb-4">
+        <div class="kpi-grid mb-4">
             <div class="kpi-card receita">
                 <div class="kpi-label">↑ Receitas desta semana</div>
                 <div class="kpi-value">R$ {{ total_receitas_atual|floatformat:2 }}</div>
@@ -39,7 +39,199 @@
                 </div>
                 <div class="kpi-sub">{% if saldo_atual >= 0 %}Superávit ✓{% else %}Déficit - Atenção{% endif %}</div>
             </div>
-         </div>
+        </div>
+
+        <!-- Semana Atual-->
+        <div class="card mb-4">
+            <div class="card-header">
+                <span class="section-title" style="margin:0;border:none;padding:0;">
+                    Semana Atual
+                    <span class="pill atual">{{ inicio_semana_atual|date:"d/m" }} - {{ fim_semana_atual|date:"d/m" }}</span>
+                </span>
+                <a href="#" class="btn btn-primary btn-sm">+ Novo</a>
+            </div>
+            <div class="card-body">
+                <div class="semana-grid">
+                    <!-- Receitas -->
+                    <div class="semana-col">
+                        <div class="semana-col-header receita-col">▲ Receitas</div>
+                        {% if receitas_atual %}
+                            {% for p in receitas_atual %}
+                            <a href="#" class="lancamento-item">
+                                <div>
+                                    <div class="desc">{{ p.descricao }}</div>
+                                    <div class="meta">{{ p.data|date:"d/m" }} · {{ p.get_status_display }}</div>
+                                    <span class="valor verde">R$ {{ p.valor_total|floatformat:2 }}</span>
+                                </div>
+                            </a>
+                            {% endfor %}
+                            <div class="total-row">
+                                <span class="text-cinza text-sm">Total de Receitas</span>
+                                <span class="valor-positivo">R$ {{ total_receitas_atual|floatformat:2 }}</span>
+                            </div>
+                        {% else %}
+                            <div class="empty-state" style="padding:1.5rem .5rem;">
+                                <div style="font-size:1.5rem;">📭</div>
+                                <p>Sem receitas esta semana</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Despesas -->
+                    <div class="semana-col">
+                        <div class="semana-col-header despesa-col">▼ Despesas</div>
+                        {% if rdespesas_atual %}
+                            {% for p in despesas_atual %}
+                            <a href="#" class="lancamento-item">
+                                <div>
+                                    <div class="desc">{{ p.descricao }}</div>
+                                    <div class="meta">{{ p.data|date:"d/m" }} · {{ p.get_status_display }}</div>
+                                    <span class="valor vermelho">R$ {{ p.valor_total|floatformat:2 }}</span>
+                                </div>
+                            </a>
+                            {% endfor %}
+                            <div class="total-row">
+                                <span class="text-cinza text-sm">Total de Despesas</span>
+                                <span class="valor-positivo">R$ {{ total_despesas_atual|floatformat:2 }}</span>
+                            </div>
+                        {% else %}
+                            <div class="empty-state" style="padding:1.5rem .5rem;">
+                                <div style="font-size:1.5rem;">✓</div>
+                                <p>Sem despesas esta semana</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Saldo da Semana Atual-->
+                <div class="saldo-box {% if saldo_atual >= 0 %}positivo{% else %}negativo{% endif %}">
+                    <span class="label">Saldo da Semana Atual</span>
+                    <span class="val">{% if saldo_atual >= 0 %}+{% endif %}R$ {{ saldo_atual|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Semana Anterior-->
+        <div class="card mb-4">
+            <div class="card-header">
+                <span class="section-title" style="margin:0;border:none;padding:0;">
+                    Semana Anterior
+                    <span class="pill anterior">{{ inicio_semana_anterior|date:"d/m" }} - {{ fim_semana_anterior|date:"d/m" }}</span>
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="semana-grid">
+                    <!-- Receitas da Semana Anterior -->
+                    <div class="semana-col">
+                        <div class="semana-col-header receita-col">▲ Receitas</div>
+                        {% if receitas_anterior %}
+                            {% for p in receitas_anterior %}
+                            <a href="#" class="lancamento-item">
+                                <div>
+                                    <div class="desc">{{ p.descricao }}</div>
+                                    <div class="meta">{{ p.data|date:"d/m" }} · {{ p.get_status_display }}</div>
+                                    <span class="valor verde">R$ {{ p.valor_total|floatformat:2 }}</span>
+                                </div>
+                            </a>
+                            {% endfor %}
+                            <div class="total-row">
+                                <span class="text-cinza text-sm">Total de Receitas</span>
+                                <span class="valor-positivo">R$ {{ total_receitas_anterior|floatformat:2 }}</span>
+                            </div>
+                        {% else %}
+                            <div class="empty-state" style="padding:1.5rem .5rem;">
+                                <div style="font-size:1.5rem;">📭</div>
+                                <p>Sem receitas na semana passada</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Despesas da Semana Anterior -->
+                    <div class="semana-col">
+                        <div class="semana-col-header despesa-col">▼ Despesas</div>
+                        {% if rdespesas_atual %}
+                            {% for p in despesas_anterior %}
+                            <a href="#" class="lancamento-item">
+                                <div>
+                                    <div class="desc">{{ p.descricao }}</div>
+                                    <div class="meta">{{ p.data|date:"d/m" }} · {{ p.get_status_display }}</div>
+                                    <span class="valor vermelho">R$ {{ p.valor_total|floatformat:2 }}</span>
+                                </div>
+                            </a>
+                            {% endfor %}
+                            <div class="total-row">
+                                <span class="text-cinza text-sm">Total de Despesas</span>
+                                <span class="valor-positivo">R$ {{ total_despesas_anterior|floatformat:2 }}</span>
+                            </div>
+                        {% else %}
+                            <div class="empty-state" style="padding:1.5rem .5rem;">
+                                <div style="font-size:1.5rem;">✓</div>
+                                <p>Sem despesas na semana passada</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Saldo da Semana Passada-->
+                <div class="saldo-box {% if saldo_anterior >= 0 %}positivo{% else %}negativo{% endif %}">
+                    <span class="label">Saldo da Semana Passada</span>
+                    <span class="val">{% if saldo_anterior >= 0 %}+{% endif %}R$ {{ saldo_anterior|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Próximas Despesas -->
+        <div class="card">
+            <div class="card-header">
+                <span class="section-title" style="margin:0;border:none;padding:0;">
+                    Próximas Despesas
+                    <span class="pill alerta">Próximos 4 dias</span>
+                </span>
+                {% if proximas_despesas %}
+                <span class="valor-negativo" style="font-size:.9rem;">
+                    Total: R$ {{ total_proximas_despesas|floatformat:2 }}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            {% if proximas_despesas %}
+                {% for p in proximas_despesas %}
+                    {% with dias=p.data_vencimento|timeuntil:hoje %}
+                    <a href="#" 
+                    class="proxima-despesa {% if p.data_vencimento == hoje %}hoje{% elif p.data_vencimento <= hoje %}urgente{% endif %}">
+                        <div class="vencimento-badge">
+                            <div class="dia">{{ p.data_vencimento|date:"d" }}</div>
+                            <div class="mes">{{ p.data_vencimento|date:"M" }}</div>
+                        </div>
+
+                        <div class="info">
+                            <div class="nome">{{ p.descricao }}</div>
+                            <div class="dias-restantes">
+                                {% if p.data_vencimento == hoje %}
+                                    Vence HOJE!!!
+                                {% else %}
+                                    Vence em {{ p.data_vencimento|timeuntil }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="valor-prox">R$ {{ p.valor_total|floatformat:2 }}</div>
+                            <div class="status-prox">{{ p.get_status_display }}</div>
+                        </div>
+                    </a>
+                    {% endwith %}
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <div style="font-size:2.5rem;">🎉</div>
+                    <p style="font-size:1rem;color:var(--verde);font-weight:600;margin-top:.5rem;">
+                        Nenhuma Despesa nos Próximos 4 Dias!!!!
+                    </p>
+                    <p>Aproveite e folga financeira!!!!!</p>
+                </div>
+            {% endif %}
+        </div> 
     </main>
     <footer>
         Finanças Família M&M - Método das partidas dobradas &copy; {% now "Y" %}

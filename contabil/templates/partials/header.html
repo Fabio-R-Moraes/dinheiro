@@ -5,6 +5,10 @@
             </a>
             <div class="nav-links">
                 <a href="{% url 'contabil:home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Dashboard</a>
+                <a href="#">Lançamentos</a>
+                <a href="#">+ Nova Partida</a>
+                <a href="#">Plano de Contas</a>
+                <a href="#">Razão</a>
             </div>
         </div>
     </nav>
