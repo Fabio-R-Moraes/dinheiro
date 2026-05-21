@@ -1,0 +1,126 @@
+{% include 'partials/head.html' %}
+<body>
+    {% include 'partials/header.html' %}
+    <main>
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h1 style="font-family:var(--font-headings);font-size:1.75rem;">Lançamentos</h1>
+                <p class="text-cinza text-sm" style="margin-top:.25rem;">Todas as Partidas Dobradas Registradas</p>
+            </div>
+            <a href="#" class="btn btn-primary">+ Nova Partida</a>
+        </div>
+        <!-- Filtros -->
+        <div class="card mb-3">
+            <div class="card-body" style="padding:1rem 1.5rem;">
+                <form method="get" style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
+                    <div>
+                        <label>Categoria</label>
+                        <select name="categoria" class="form-control" style="width:auto;">
+                            <option value="">Todas</option>
+                            <option value="RECEITA" {% if categoria_atual == 'RECEITA' %}selected{% endif %}>Receitas</option>
+                            <option value="DESPESA" {% if categoria_atual == 'DESPESA' %}selected{% endif %}>Despesas</option>
+                            <option value="TRANSFERENCIA" {% if categoria_atual == 'TRANSFERENCIA' %}selected{% endif %}>Transferências</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Status</label>
+                        <select name="status" class="form-control" style="width:auto;">
+                            <option value="">Todos</option>
+                            <option value="PENDENTE" {% if status_atual == 'PENDENTE' %}selected{% endif %}>Pendente</option>
+                            <option value="PAGO" {% if status_atual == 'PAGO' %}selected{% endif %}>Pago</option>
+                            <option value="CANCELADO" {% if status_atual == 'CANCELADO' %}selected{% endif %}>Cancelado</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-secondary">Filtrar</button>
+                    <a href="{% url 'contabil:partida-list' %}" class="btn btn-secondary">Limpar</a>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                            <th>Categoria</th>
+                            <th>Status</th>
+                            <th>Valor</th>
+                            <th>Equilibrada</th>
+                            <th style="text-align:right;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for partida in partidas %}
+                        <tr>
+                            <td class="text-sm">{{ partida.data|date:"d/m/Y" }}</td>
+                            <td>
+                                <a href="#" style="color:var(--cinza-escuro);text-decoration:none;font-weght:500;">
+                                    {{ partida.descricao }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge badge-{{ partida.categoria|lower }}">
+                                    {{ partida.get_categoria_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge badge-{{ partida.status|lower }}">
+                                    {{ partida.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if partida.categoria == 'RECEITA' %}
+                                    <span class="valor-positivo">R$ {{ partida.valor_total|floatformat:2 }}</span>
+                                {% elif partida.categoria == 'DESPESA' %}
+                                    <span class="valor-negativo">R$ {{ partida.valor_total|floatformat:2 }}</span>
+                                {% else %}
+                                    <span class="valor-neutro">R$ {{ partida.valor_total|floatformat:2 }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if partida.esta_equilibrada %}
+                                    <span style="color:var(--verde);font-weight:600;">✓ Sim</span>
+                                {% else %}
+                                    <span style="color:var(--vermelho);font-weight:600;">✗ Não</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align:right;">
+                                <a href="#" class="btn btn-secondary btn-sm">Editar</a>
+                                <a href="#" class="btn btn-danger btn-sm">Excluir</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty state">
+                                    <div style="font-size:2rem;">📒</div>
+                                    <p>Nenhum lançamento encontrado!!!</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginação -->
+            {% if is_paginated %}
+                <div style="padding:1rem 1.5rem;border-top:1px solid var(--borda);display:flex;gap:.5rem;align-items:center;">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}{% if categoria_atual %}&categoria={{ categoria_atual }}{% endif %}{% if status_atual %}&status={{ status_atual }}{% endif %}" class="btn btn-secondary btn-sm">← Anterior</a>
+                    {% endif %}
+                    <span class="text-cinza text-sm">Página {{ page_obj.number }} de {{ page_obj..paginator.num_pages }}</span>
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if categoria_atual %}&categoria={{ categoria_atual }}{% endif %}{% if status_atual %}&status={{ status_atual }}{% endif %}" class="btn btn-secondary btn-sm">Próxima →</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </main>
+    <footer>
+        Finanças Família M&M - Método das partidas dobradas &copy; {% now "Y" %}
+    </footer>
+</body>
+</html>

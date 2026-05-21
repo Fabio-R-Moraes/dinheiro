@@ -1,0 +1,115 @@
+{% include 'partials/head.html' %}
+<body>
+    {% include 'partials/header.html' %}
+    <main>
+        <div class="flex items-center justify-beteen-mb-4">
+            <div>
+                <a href="{% url 'contabil:partida-list' %}" class="text-cinza text-sm" style="text-decoration:none;">← Lançamentos</a>
+                <h1 style="font-family:var(--font-headings);font-size:1.75rem;margin-top:.25rem;">{{ partida.descricao }}</h1>
+            </div>
+            <div style="display:flex;gap:.5rem;">
+                <a href="#" class="btn btn-secondary">Editar</a>
+                <a href="#" class="btn btn-danger">Excluir</a>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <!-- Informação da partida-->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Dados da Partida</span>
+                    <span class="badge badge-{{ partida.categoria|lower }}">{{ partida.get_categoria_display }}</span>
+                </div>
+
+                <div class="card-body">
+                    <table style="width:100%">
+                        <tr>
+                            <td style="padding:.5rem 0;color:var(--cinza);font-size:.85rem;width:40%;">Data</td>
+                            <td style="padding:.5rem 0;font-weight:500;">{{ partida.data|date:"d/m/Y" }}</td>
+                        </tr>
+                        {% if partida.data_vencimento %}
+                        <tr>
+                            <td style="padding:.5rem 0;color:var(--cinza);font-size:.85rem;">Vencimento</td>
+                            <td style="padding:.5rem 0;font-weight:500;">{{ partida.data_vencimento|date:"d/m/Y" }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td style="padding:.5rem 0;color:var(--cinza);font-size:.85rem;">Status</td>
+                            <td style="padding:.5rem 0;">
+                                <span class="badge badge-{{ partida.status|lower }}">{{ partida.get_status_display }}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding:.5rem 0;color:var(--cinza);font-size:.85rem;">Valor Total</td>
+                            <td style="padding:.5rem 0;">
+                                {% if partida.categoria == 'RECEITA' %}
+                                    <span class="valor-positivo" style="font-size:1.1rem;">R$ {{ partida.valor_total|floatformat:2 }}</span>
+                                {% else %}
+                                    <span class="valor-negativo" style="font-size:1.1rem;">R$ {{ partida.valor_total|floatformat:2 }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding:.5rem 0;color:var(--cinza);font-size:.85rem;">Equilibrada?</td>
+                            <td style="padding:.5rem 0;">
+                                {% if partida.esta_equilibrada %}
+                                    <span style="color:var(--verde);font-weight:700;">✓ Débitos = Créditos</span>
+                                {% else %}
+                                    <span style="color:var(--vermelho);font-weight:700">✗ Partida desequilibrada!</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% if partida.obervacao %}
+                        <tr>
+                            <td style="padding:.5rem 0;color:var(--cinza);font-size:.85rem;vertical-align:top;">Observação</td>
+                            <td style="padding:.5rem 0;font-size:.9rem;">{{ partida.observacao }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+
+            <!-- Lançamentos (Razonete)-->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Lançamentos - Partida Dobrada</span>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <!-- Cabeçalho do Razonete-->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;background:var(--cinza-escuro);color:var(--branco);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">
+                        <div style="padding:.75rem 1rem;border-right:1px solid rgba(255, 255, 255, .1)">DÉBITO (D)</div>
+                        <div style="padding:.75rem 1rem;">CRÉDITO (C)</div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;min-height:120px;">
+                        <div style="border-right:2px solid var(--borda);padding:.75rem 1rem;">
+                            {% for l in partida.lancamentos.all %}
+                                {% if l.tipo == 'DEBITO' %}
+                                    <div style="margin-bottom:.5rem;">
+                                        <div style="font-weight:600;font-size:.875rem">{{ l.conta.nome }}</div>
+                                        <div style="font-family:var(--font-headings);color:var(--verde);font-weight:700">R$ {{ l.valor|floatformat:2 }}</div>
+                                        {% if l.descricao %}<div style="font-size:.75rem;color:var(--cinza-claro);">{{ l.descricao }}</div>{% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div style="padding:.75rem 1rem;">
+                            {% for l in partida.lancamentos.all %}
+                                {% if l.tipo == 'CREDITO' %}
+                                    <div style="margin-bottom:.5rem;text-align:right;">
+                                        <div style="font-weight:600;font-size:.875rem">{{ l.conta.nome }}</div>
+                                        <div style="font-family:var(--font-headings);color:var(--vermelho);font-weight:700">R$ {{ l.valor|floatformat:2 }}</div>
+                                        {% if l.descricao %}<div style="font-size:.75rem;color:var(--cinza-claro);">{{ l.descricao }}</div>{% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        Finanças Família M&M - Método das partidas dobradas &copy; {% now "Y" %}
+    </footer>
+</body>
+</html>

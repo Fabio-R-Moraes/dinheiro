@@ -48,7 +48,7 @@
                     Semana Atual
                     <span class="pill atual">{{ inicio_semana_atual|date:"d/m" }} - {{ fim_semana_atual|date:"d/m" }}</span>
                 </span>
-                <a href="#" class="btn btn-primary btn-sm">+ Novo</a>
+                <a href="{% url 'contabil:partida-create' %}" class="btn btn-primary btn-sm">+ Novo</a>
             </div>
             <div class="card-body">
                 <div class="semana-grid">
@@ -57,7 +57,7 @@
                         <div class="semana-col-header receita-col">▲ Receitas</div>
                         {% if receitas_atual %}
                             {% for p in receitas_atual %}
-                            <a href="#" class="lancamento-item">
+                            <a href="{% url 'contabil:partida-detail' p.pk %}" class="lancamento-item">
                                 <div>
                                     <div class="desc">{{ p.descricao }}</div>
                                     <div class="meta">{{ p.data|date:"d/m" }} · {{ p.get_status_display }}</div>
@@ -82,7 +82,7 @@
                         <div class="semana-col-header despesa-col">▼ Despesas</div>
                         {% if rdespesas_atual %}
                             {% for p in despesas_atual %}
-                            <a href="#" class="lancamento-item">
+                            <a href="{% url 'contabil:partida-detail' p.pk %}" class="lancamento-item">
                                 <div>
                                     <div class="desc">{{ p.descricao }}</div>
                                     <div class="meta">{{ p.data|date:"d/m" }} · {{ p.get_status_display }}</div>
@@ -126,7 +126,7 @@
                         <div class="semana-col-header receita-col">▲ Receitas</div>
                         {% if receitas_anterior %}
                             {% for p in receitas_anterior %}
-                            <a href="#" class="lancamento-item">
+                            <a href="{% url 'contabil:partida-detail' p.pk %}" class="lancamento-item">
                                 <div>
                                     <div class="desc">{{ p.descricao }}</div>
                                     <div class="meta">{{ p.data|date:"d/m" }} · {{ p.get_status_display }}</div>
@@ -151,7 +151,7 @@
                         <div class="semana-col-header despesa-col">▼ Despesas</div>
                         {% if rdespesas_atual %}
                             {% for p in despesas_anterior %}
-                            <a href="#" class="lancamento-item">
+                            <a href="{% url 'contabil:partida-detail' p.pk %}" class="lancamento-item">
                                 <div>
                                     <div class="desc">{{ p.descricao }}</div>
                                     <div class="meta">{{ p.data|date:"d/m" }} · {{ p.get_status_display }}</div>
@@ -198,7 +198,7 @@
             {% if proximas_despesas %}
                 {% for p in proximas_despesas %}
                     {% with dias=p.data_vencimento|timeuntil:hoje %}
-                    <a href="#" 
+                    <a href="{% url 'contabil:partida-detail' p.pk %}" 
                     class="proxima-despesa {% if p.data_vencimento == hoje %}hoje{% elif p.data_vencimento <= hoje %}urgente{% endif %}">
                         <div class="vencimento-badge">
                             <div class="dia">{{ p.data_vencimento|date:"d" }}</div>

@@ -93,3 +93,71 @@ class HomeView(TemplateView):
             })
 
         return context
+    
+class PartidaListView(ListView):
+    model = Partida
+    template_name = 'partida_list.html'
+    context_object_name = 'partidas'
+    paginate_by = 20
+
+    def get_ueryset(self):
+        qs = Partida.objects.all()
+        categoria = self.request.GET.get('categoria')
+        status = self.request.GET.get('status')
+
+        if categoria:
+            qs = qs.filter(categoria=categoria)
+
+        if status:
+            qs = qs.filter(status=status)
+
+        return qs.order_by('-data')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categoria_atual'] = self.request.GET.get('categoria', '')
+        context['status_atual'] = self.request.GET.get('status', '')
+
+        return context
+    
+class PartidaDetailView(DetailView):
+    model = Partida
+    template_name = 'partida_detail.html'
+    context_object_name = 'partida'
+
+class PartidaCreateView(CreateView):
+    model =Partida
+    form_class = PartidaForm
+    template_name = 'partida-form.html'
+    success_url = reverse_lazy('contabil:partida-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.POST:
+            context['lancamento_formset'] = LancamentoFormSet(self.request.POST)
+        else:
+            context['lancamento_formset'] = LancamentoFormSet()
+
+        return context
+    
+    def form_valid(self, form):
+        context = self.get_context_data()
+        lancamento_formset = context['lancamento_formset']
+
+        if lancamento_formset.is_valid():
+            self.object = form.save()
+            lancamento_formset.instance = self.object
+            lancamento_formset.save()
+
+            if not self.object.esta_equilibrada():
+                messages.warning(
+                    self.request,
+                    'Atenção: a partida não está equilibrada (débitos ≠ créditos)!'
+                )
+            else:
+                messages.success(self.request, 'Partida registrada com sucesso!!!')
+
+            return redirect(self.success_url)
+        
+        return self.render_to_response(self.get_context_data(form=form))
