@@ -80,7 +80,7 @@
                     <!-- Despesas -->
                     <div class="semana-col">
                         <div class="semana-col-header despesa-col">▼ Despesas</div>
-                        {% if rdespesas_atual %}
+                        {% if despesas_atual %}
                             {% for p in despesas_atual %}
                             <a href="{% url 'contabil:partida-detail' p.pk %}" class="lancamento-item">
                                 <div>

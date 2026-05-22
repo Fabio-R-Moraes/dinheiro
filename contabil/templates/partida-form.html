@@ -1,3 +1,4 @@
+{% load static %}
 {% include 'partials/head.html' %}
 <body>
     {% include 'partials/header.html' %}
@@ -11,9 +12,119 @@
                 Registre a partida com pelo menos um débito e um crédito de mesmo valor.
             </p>
         </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <!-- Dados da Partida -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <span class="card-title">Dados da Partida</span>
+                </div>
+                <div class="card-body">
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Data *</label>
+                            {{ form.data }}
+                        </div>
+                        <div class="form-group">
+                            <label>Data de Vencimento</label>
+                            {{ form.data_vencimento }}
+                        </div>
+                        <div class="form-group">
+                            <label>Categoria *</label>
+                            {{ form.categoria }}
+                        </div>
+                        <div class="form-group">
+                            <label>Status *</label>
+                            {{ form.status }}
+                        </div>
+                        <div class="form-group">
+                            <label>Descrição *</label>
+                            {{ form.descricao }}
+                        </div>
+                        <div class="form-group">
+                            <label>Observação</label>
+                            {{ form.observacao }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lançamentos (Formset) -->
+                <div class="card-mb-3">
+                    <div class="card-header">
+                        <span class="card-title">Lançamentos - Partida Dobrada</span>
+                        <span class="text-cinza text-sm">Débitos DEVEM ser iguais aos Créditos</span>
+                    </div>
+                    <div class="card-body">
+                        {{ lancamento_formset.management_form }}
+                        <div id="formset-container">
+                            {% for lform in lancamento_formset %}
+                                <div class="formset-item" data-index = "{{ forloop.counter0 }}">
+                                    <div class="formset-header">
+                                        <h4>Lançamento {{ forloop.counter }}</h4>
+                                        {% if lform.instance.pk %}
+                                            <label style="display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--vermelho);cursor:pointer">
+                                                {{ lform.DELETE }} Excluir este lançamento
+                                            </label>
+                                        {% endif %}
+                                    </div>
+                                    {{ lform.id }}
+                                    <div class="grid-2">
+                                        <div class="form-group">
+                                            <label>Conta *</label>
+                                            {{ lform.conta }}
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Tipo *</label>
+                                            {{ lform.tipo }}
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Valor *</label>
+                                            {{ lform.valor }}
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Descrição</label>
+                                            {{ lform.descricao }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Totalizador -->
+                        <div class="totais">
+                            <div class="total-box">
+                                <div class="t-label">Total de Débitos</div>
+                                <div class="t-val" id="total-debito" style="color:var(--verde);">R$ 0,00</div>
+                            </div>
+                            <div class="total-box">
+                                <div class="t-label">Diferença</div>
+                                <div class="t-val" id="total-diff" style="color:var(--cinza);">R$ 0,00</div>
+                            </div>
+                            <div class="total-box">
+                                <div class="t-label">Total de Créditos</div>
+                                <div class="t-val" id="total-credito" style="color:var(--vermelho);">R$ 0,00</div>
+                            </div>
+                        </div>
+                        <div class="equilibrio-status desequilibrado" id="equilibrio-status">
+                            ⚖ Preencha os lançamentos para verificar o equilibrio
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:1rem;">
+                    <button type="submit" class="btn btn-primary">
+                        {% if object %}Salvar Alterações{% else %}Registrar Partida{% endif %}
+                    </button>
+                    <a href="{% url 'contabil:partida-list' %}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </div>
+        </form>
     </main>
     <footer>
         Finanças Família M&M - Método das partidas dobradas &copy; {% now "Y" %}
     </footer>
+    <!-- Scripts -->
+     <script src="{% static 'contabil/js/scripts.js' %}"></script>
 </body>
 </html>
