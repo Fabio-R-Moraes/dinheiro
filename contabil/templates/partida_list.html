@@ -56,7 +56,7 @@
                         <tr>
                             <td class="text-sm">{{ partida.data|date:"d/m/Y" }}</td>
                             <td>
-                                <a href="#" style="color:var(--cinza-escuro);text-decoration:none;font-weght:500;">
+                                <a href="{% url 'contabil:partida-detail' partida.pk %}" style="color:var(--cinza-escuro);text-decoration:none;font-weght:500;">
                                     {{ partida.descricao }}
                                 </a>
                             </td>
@@ -87,8 +87,8 @@
                                 {% endif %}
                             </td>
                             <td style="text-align:right;">
-                                <a href="#" class="btn btn-secondary btn-sm">Editar</a>
-                                <a href="#" class="btn btn-danger btn-sm">Excluir</a>
+                                <a href="{% url 'contabil:partida-update' partida.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+                                <a href="{% url 'contabil:partida-delete' partida.pk %}" class="btn btn-danger btn-sm">Excluir</a>
                             </td>
                         </tr>
                         {% empty %}

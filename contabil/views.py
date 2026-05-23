@@ -100,7 +100,7 @@ class PartidaListView(ListView):
     context_object_name = 'partidas'
     paginate_by = 20
 
-    def get_ueryset(self):
+    def get_queryset(self):
         qs = Partida.objects.all()
         categoria = self.request.GET.get('categoria')
         status = self.request.GET.get('status')
@@ -161,3 +161,46 @@ class PartidaCreateView(CreateView):
             return redirect(self.success_url)
         
         return self.render_to_response(self.get_context_data(form=form))
+    
+class PartidaUpdateView(UpdateView):
+    model = Partida
+    form_class = PartidaForm
+    template_name = 'partida-form.html'
+    success_url = reverse_lazy('contabil:partida-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.POST:
+            context['lancamento_formset'] = LancamentoFormSet(
+                self.request.POST, instance=self.object
+            )
+        else:
+            context['lancamento_formset'] = LancamentoFormSet(
+                instance=self.object
+            )
+
+        return context
+    
+    def form_valid(self, form):
+        context = self.get_context_data()
+        lancamento_formset = context['lancamento_formset']
+
+        if lancamento_formset.is_valid():
+            self.object = form.save()
+            lancamento_formset.instance = self.object
+            lancamento_formset.save()
+            messages.success(self.request, 'Partida atualizada com sucesso!!!')
+
+            return redirect(self.success_url)
+        return self.render_to_response(self.get_context_data(form=form))
+    
+class PartidaDeleteView(DeleteView):
+    model = Partida
+    template_name = 'partida-confirm-delete.html'
+    success_url = reverse_lazy('contabil:partida-list')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Partida excluída com sucesso...')
+
+        return super().delete(request, *args, *kwargs)

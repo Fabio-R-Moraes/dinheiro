@@ -8,8 +8,8 @@
                 <h1 style="font-family:var(--font-headings);font-size:1.75rem;margin-top:.25rem;">{{ partida.descricao }}</h1>
             </div>
             <div style="display:flex;gap:.5rem;">
-                <a href="#" class="btn btn-secondary">Editar</a>
-                <a href="#" class="btn btn-danger">Excluir</a>
+                <a href="{% url 'contabil:partida-update' partida.pk %}" class="btn btn-secondary">Editar</a>
+                <a href="{% url 'contabil:partida-delete' partida.pk %}" class="btn btn-danger">Excluir</a>
             </div>
         </div>
 
