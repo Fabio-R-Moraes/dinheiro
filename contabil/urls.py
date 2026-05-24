@@ -10,4 +10,5 @@ urlpatterns = [
     path('partidas/nova/', views.PartidaCreateView.as_view(), name='partida-create'),
     path('partidas/<int:pk>/editar/', views.PartidaUpdateView.as_view(), name='partida-update'),
     path('partidas/<int:pk>/excluir/', views.PartidaDeleteView.as_view(), name='partida-delete'),
+    path('plano-de-contas/', views.PlanoDeContasListView.as_view(), name='plano-list'),
 ]

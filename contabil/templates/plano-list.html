@@ -1,0 +1,116 @@
+{% include 'partials/head.html' %}
+<body>
+    {% include 'partials/header.html' %}
+    <main>
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h1 style="font-family:var(--font-headings);font-size:1.75rem;">Plano de Contas</h1>
+                <p class="text-cinza text-sm" style="margin-top:.25rem;">Estrutura Hierárquica das Contas Contábeis</p>
+            </div>
+            <a href="#" class="btn btn-primary">+ Nova Conta</a>
+        </div>
+
+        <div class="card">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>Natureza</th>
+                            <th>Conta Pai</th>
+                            <th>Saldo</th>
+                            <th>Ativa</th>
+                            <th style="text-align:right;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for conta in contas %}
+                            <tr>
+                                <td><code style="font-family:var(--font-optional);font-size:.85rem;">{{ conta.codigo }}</code></td>
+                                <td style="font-weight:600">{{ conta.nome }}</td>
+                                <td><span class="badge badge-{{ conta.tipo|lower }}">{{ conta.get_tipo_display }}</span></td>
+                                <td class="text-sm text-cinza">{{ conta.get_natureza_display }}</td>
+                                <td class="text-sm">{{ conta.conta_pai|default:"-" }}</td>
+                                <td>
+                                    {% with s=conta.saldo %}
+                                        {% if s >= 0 %}
+                                            <span class="valor-positivo">R$ {{ s|floatformat:2}}</span>
+                                        {% else %}
+                                            <span class="valor-negativo">R$ {{ s|floatformat:2 }}</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td>{% if conta.ativa %}<span style="color:var(--verde);">●</span>{% else %}<span style="color:var(--cinza-claro);">○</span>{% endif %}</td>
+                                <td style="text-align:right;">
+                                    <a href="#" class="btn btn-secondary btn-sm">Editar</a>
+                                </td>
+                            </tr>
+
+                            <!-- Subcontas -->
+                            {% for subcontas in conta.subcontas.all %}
+                                <tr style="background:var(--bg);">
+                                    <td style="padding-left:2rem;"><code style="font-family:var(--font-optional);font-size:.8rem;color:var(--cinza);">{{ sub.codigo }}</code></td>
+                                    <td style="font-size:.9rem;color:var(--cinza-medio);">↳ {{ sub.nome }}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="text-sm text-cinza">{{ conta.nome }}</td>
+                                    <td>
+                                        {% with s=sub.saldo %}
+                                            {% if s >= 0 %}
+                                                <span class="valor-positivo" style="font-size:.875rem">R$ {{ s|floatformat:2 }}</span>
+                                            {% else %}
+                                                <span class="valor-negativo" style="font-size.875rem">{{ s|floatformat:2 }}</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                    <td>{% if sub.ativa %}<span style="color:var(--verde);">●</span>{% else %}<span style="color:var(--cinza-claro);">○</span>{% endif %}</td>
+                                    <td style="text-align:right;">
+                                        <a href="#" class="btn btn-secondary btn-sm">Editar</a>
+                                    </td>
+                                </tr>
+
+                                <!-- Sub-subcontas -->
+                                {% for subsub in sub.subcontas.all %}
+                                    <tr style="background:#fafafa;">
+                                        <td style="padding-left:3.5rem;"><code style="font-family:var(--font-optional);font-size:.78rem;color:var(--cinza-claro);">{{ subsub.codigo }}</code></td>
+                                        <td style="font-size:.875rem;color:var(--cinza);">↳ {{ subsub.nome }}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td class="text-sm text-cinza">{{ conta.nome }}</td>
+                                        <td>
+                                            {% with s=subsub.saldo %}
+                                                {% if s >= 0 %}
+                                                    <span class="valor-positivo" style="font-size:.85rem">R$ {{ s|floatformat:2 }}</span>
+                                                {% else %}
+                                                    <span class="valor-negativo" style="font-size.85rem">{{ s|floatformat:2 }}</span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </td>
+                                        <td>{% if subsub.ativa %}<span style="color:var(--verde);">●</span>{% else %}<span style="color:var(--cinza-claro);">○</span>{% endif %}</td>
+                                        <td style="text-align:right;">
+                                            <a href="#" class="btn btn-secondary btn-sm">Editar</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        {% empty %}
+                            <tr>
+                                <td colspan="8">
+                                    <div class="empty-state">
+                                        <p>Nenhums conta cadastrada... Crie as suas próprias contas!!!</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <footer>
+        Finanças Família M&M - Método das partidas dobradas &copy; {% now "Y" %}
+    </footer>
+</body>
+</html>

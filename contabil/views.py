@@ -204,3 +204,11 @@ class PartidaDeleteView(DeleteView):
         messages.success(request, 'Partida excluída com sucesso...')
 
         return super().delete(request, *args, *kwargs)
+    
+class PlanoDeContasListView(ListView):
+    model = PlanoDeContas
+    template_name = 'plano-list.html'
+    context_object_name = 'contas'
+
+    def get_queryset(self):
+        return PlanoDeContas.objects.filter(conta_pai=None).order_by('codigo')

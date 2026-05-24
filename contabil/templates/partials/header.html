@@ -7,7 +7,7 @@
                 <a href="{% url 'contabil:home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Dashboard</a>
                 <a href="{% url 'contabil:partida-list' %}" {% if 'partida' in request.resolver_match.url_name %}class=active{% endif %}>Lançamentos</a>
                 <a href="{% url 'contabil:partida-create' %}">+ Nova Partida</a>
-                <a href="#">Plano de Contas</a>
+                <a href="{% url 'contabil:plano-list' %}" {% if 'plano' in request.resolver_match.url_name %}class="active{% endif %}">Plano de Contas</a>
                 <a href="#">Razão</a>
             </div>
         </div>
