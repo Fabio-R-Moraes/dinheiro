@@ -43,9 +43,9 @@
                             <td style="padding:.5rem 0;color:var(--cinza);font-size:.85rem;">Valor Total</td>
                             <td style="padding:.5rem 0;">
                                 {% if partida.categoria == 'RECEITA' %}
-                                    <span class="valor-positivo" style="font-size:1.1rem;">R$ {{ partida.valor_total|floatformat:2 }}</span>
+                                    <span class="valor-positivo" style="font-size:1.1rem;">R$ {{ partida.valor_total|brl }}</span>
                                 {% else %}
-                                    <span class="valor-negativo" style="font-size:1.1rem;">R$ {{ partida.valor_total|floatformat:2 }}</span>
+                                    <span class="valor-negativo" style="font-size:1.1rem;">R$ {{ partida.valor_total|brl }}</span>
                                 {% endif %}
                             </td>
                         </tr>
@@ -86,7 +86,7 @@
                                 {% if l.tipo == 'DEBITO' %}
                                     <div style="margin-bottom:.5rem;">
                                         <div style="font-weight:600;font-size:.875rem">{{ l.conta.nome }}</div>
-                                        <div style="font-family:var(--font-headings);color:var(--verde);font-weight:700">R$ {{ l.valor|floatformat:2 }}</div>
+                                        <div style="font-family:var(--font-headings);color:var(--verde);font-weight:700">R$ {{ l.valor|brl }}</div>
                                         {% if l.descricao %}<div style="font-size:.75rem;color:var(--cinza-claro);">{{ l.descricao }}</div>{% endif %}
                                     </div>
                                 {% endif %}
@@ -97,7 +97,7 @@
                                 {% if l.tipo == 'CREDITO' %}
                                     <div style="margin-bottom:.5rem;text-align:right;">
                                         <div style="font-weight:600;font-size:.875rem">{{ l.conta.nome }}</div>
-                                        <div style="font-family:var(--font-headings);color:var(--vermelho);font-weight:700">R$ {{ l.valor|floatformat:2 }}</div>
+                                        <div style="font-family:var(--font-headings);color:var(--vermelho);font-weight:700">R$ {{ l.valor|brl }}</div>
                                         {% if l.descricao %}<div style="font-size:.75rem;color:var(--cinza-claro);">{{ l.descricao }}</div>{% endif %}
                                     </div>
                                 {% endif %}

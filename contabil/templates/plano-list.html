@@ -1,116 +1,214 @@
+{% load static %}
 {% include 'partials/head.html' %}
 <body>
     {% include 'partials/header.html' %}
     <main>
-        <div class="flex items-center justify-between mb-4">
+        <!-- Cabeçalho -->
+        <div class="pl-page-header">
             <div>
-                <h1 style="font-family:var(--font-headings);font-size:1.75rem;">Plano de Contas</h1>
-                <p class="text-cinza text-sm" style="margin-top:.25rem;">Estrutura Hierárquica das Contas Contábeis</p>
+                <h1>Plano de Contas</h1>
+                <p class="subtitle">Saldos por Conta e por Grupo - Todas as Contas exibidas mesmo SEM Movimentação</p>
             </div>
             <a href="#" class="btn btn-primary">+ Nova Conta</a>
         </div>
 
-        <div class="card">
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Nome</th>
-                            <th>Tipo</th>
-                            <th>Natureza</th>
-                            <th>Conta Pai</th>
-                            <th>Saldo</th>
-                            <th>Ativa</th>
-                            <th style="text-align:right;">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for conta in contas %}
+        <!-- Totais por Tipo -->
+        <div class="totais-gr">
+            <div class="total-card ativo">
+                <div class="tc-label">Ativo</div>
+                <div class="tc-valor {% if total_ativo >= 0 %}s-pos{% else %}s-neg{% endif %}">
+                    R$ {{ total_ativo|brl }}
+                </div>
+            </div>
+            <div class="total-card passivo">
+                <div class="tc-label">Passivo</div>
+                <div class="tc-valor {% if total_passivo >= 0 %}s-pos{% else %}s-neg{% endif %}">
+                    R$ {{ total_passivo|brl }}
+                </div>
+            </div>
+            <div class="total-card patrimonio">
+                <div class="tc-label">Patrimônio</div>
+                <div class="tc-valor {% if total_patrimonio >= 0 %}s-pos{% else %}s-neg{% endif %}">
+                    R$ {{ total_patrimonio|brl }}
+                </div>
+            </div>
+            <div class="total-card receita">
+                <div class="tc-label">Receitas</div>
+                <div class="tc-valor">R$ {{ total_receitas|brl }}</div>
+            </div>
+            <div class="total-card despesa">
+                <div class="tc-label">Despesas</div>
+                <div class="tc-valor">R$ {{ total_despesas|brl }}</div>
+            </div>
+        </div>
+
+        <!-- Resultado (Lucro/Prejuízo) -->
+        <div class="resultado-bar {% if resultado >= 0 %}Lucro{% else %}Prejuízo{% endif %}">
+            <span class="rb-label">
+                {% if resultado >= 0 %}✓ Resultado: Superávit (Receitas &gt; Despesas){% else %}✗ Resultado: Déficit (Despesas &gt; Receitas){% endif %}
+            </span>
+            <span class="rb-valor">
+                {% if resultado >= 0 %}+{% endif %}R$ {{ resultado|brl }}
+            </span>
+        </div>
+
+        <!--Grupos do Plano de Contas -->
+        {% for grupo in grupos %}
+        <div class="grupo-tipo-{{ grupo.tipo|lower }} {% if forloop.first %}Aberto{% endif %}" id="grupo-{{  grupo.conta.pk }}">
+
+            <!-- Cabeçalho clicável do grupo -->
+            <div class="grupo header" onclick="toggleGrupo(this);">
+                <span class="gh-codigo">{{ grupo.conta.codigo }}</span>
+                <span class="gh-nome">{{ grupo.conta.nome }}</span>
+                <span class="gh-tipo">{{ grupo.conta.get_tipo_display }}</span>
+                <span class="gh-saldo {% if grupo.saldo_acum > 0 %}s-pos{% elif grupo.saldo_acum < 0 %}s-neg{% else %}s-zero{% endif %}">
+                    R$ {{ grupo.saldo_acum|brl }}
+                </span>
+                <span class="gh-toggle">▼</span>
+            </div>
+
+            <!-- Tabela Detalhada -->
+            <div class="grupo-body">
+                <div style="overflow-x:auto;">
+                    <table class="plano-table">
+                        <thead>
                             <tr>
-                                <td><code style="font-family:var(--font-optional);font-size:.85rem;">{{ conta.codigo }}</code></td>
-                                <td style="font-weight:600">{{ conta.nome }}</td>
-                                <td><span class="badge badge-{{ conta.tipo|lower }}">{{ conta.get_tipo_display }}</span></td>
-                                <td class="text-sm text-cinza">{{ conta.get_natureza_display }}</td>
-                                <td class="text-sm">{{ conta.conta_pai|default:"-" }}</td>
-                                <td>
-                                    {% with s=conta.saldo %}
-                                        {% if s >= 0 %}
-                                            <span class="valor-positivo">R$ {{ s|floatformat:2}}</span>
-                                        {% else %}
-                                            <span class="valor-negativo">R$ {{ s|floatformat:2 }}</span>
-                                        {% endif %}
-                                    {% endwith %}
+                                <th style="width:6rem;">Código</th>
+                                <th>Nome da Conta</th>
+                                <th class="col-natureza">Natureza</th>
+                                <th class="text-right">Débitos</th>
+                                <th class="text-right">Créditos</th>
+                                <th class="text-right">Saldo Próprio</th>
+                                <th class="text-right">Saldo Acumulado</th>
+                                <th class="text-center">Ativa</th>
+                                <th class="text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for linha in grupo.linhas %}
+                            <!-- Linha nível 2 -->
+                            <tr class="row-n2">
+                                <td class="col-codigo">{{ linha.conta.codigo }}</td>
+                                <td class="col-nome">
+                                    <div class="nome-indent">
+                                        <span class="nivel-bar"></span>
+                                        <span style="font-weight:600;">{{ linha.conta.nome }}</span>
+                                    </div>
                                 </td>
-                                <td>{% if conta.ativa %}<span style="color:var(--verde);">●</span>{% else %}<span style="color:var(--cinza-claro);">○</span>{% endif %}</td>
-                                <td style="text-align:right;">
+                                <td class="col-natureza">{{ linha.conta.get_natureza_display }}</td>
+                                <td class="col-debito">
+                                    {% if linha.debitos %}R$ {{ linha.debitos|brl }}{% else %}<span class="s-zero">-</span>{% endif %}
+                                </td>
+                                <td class="col-credito">
+                                    {% if linha.creditos %}R$ {{ linha.creditos|brl }}{% else %}<span class="s-zero">-</span>{% endif %}
+                                </td>
+                                <td class="col-saldo {% if linha.saldo > 0 %}s-pos{% elif linha.saldo < 0 %}s-neg{% else %}s-zero{% endif %}">
+                                    R$ {{ linha.saldo|brl }}
+                                </td>
+                                <td class="col-saldo_acum {% if linha.saldo_acum > 0 %}s-pos{% elif linha.saldo_acum < 0 %}s-neg{% else %}s-zero{% endif %}">
+                                    {% if linha.tem_filhas %}
+                                    <span title="Inclui Subcontas">R$ {{ linha.saldo_acum|brl }} ∑</span>
+                                    {% else %}
+                                    R$ {{ linha.saldo_acum|brl }}
+                                    {% endif %}
+                                </td>
+                                <td class="col-ativa">
+                                    {% if linha.conta.ativa %}<span style="color:var(--verde);">●</span>{% else %}<span style="color:var(--cinza-claro);">○</span>{% endif %}
+                                </td>
+                                <td class="col-acoes">
                                     <a href="#" class="btn btn-secondary btn-sm">Editar</a>
                                 </td>
                             </tr>
 
-                            <!-- Subcontas -->
-                            {% for subcontas in conta.subcontas.all %}
-                                <tr style="background:var(--bg);">
-                                    <td style="padding-left:2rem;"><code style="font-family:var(--font-optional);font-size:.8rem;color:var(--cinza);">{{ sub.codigo }}</code></td>
-                                    <td style="font-size:.9rem;color:var(--cinza-medio);">↳ {{ sub.nome }}</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td class="text-sm text-cinza">{{ conta.nome }}</td>
-                                    <td>
-                                        {% with s=sub.saldo %}
-                                            {% if s >= 0 %}
-                                                <span class="valor-positivo" style="font-size:.875rem">R$ {{ s|floatformat:2 }}</span>
-                                            {% else %}
-                                                <span class="valor-negativo" style="font-size.875rem">{{ s|floatformat:2 }}</span>
-                                            {% endif %}
-                                        {% endwith %}
-                                    </td>
-                                    <td>{% if sub.ativa %}<span style="color:var(--verde);">●</span>{% else %}<span style="color:var(--cinza-claro);">○</span>{% endif %}</td>
-                                    <td style="text-align:right;">
-                                        <a href="#" class="btn btn-secondary btn-sm">Editar</a>
-                                    </td>
-                                </tr>
-
-                                <!-- Sub-subcontas -->
-                                {% for subsub in sub.subcontas.all %}
-                                    <tr style="background:#fafafa;">
-                                        <td style="padding-left:3.5rem;"><code style="font-family:var(--font-optional);font-size:.78rem;color:var(--cinza-claro);">{{ subsub.codigo }}</code></td>
-                                        <td style="font-size:.875rem;color:var(--cinza);">↳ {{ subsub.nome }}</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td class="text-sm text-cinza">{{ conta.nome }}</td>
-                                        <td>
-                                            {% with s=subsub.saldo %}
-                                                {% if s >= 0 %}
-                                                    <span class="valor-positivo" style="font-size:.85rem">R$ {{ s|floatformat:2 }}</span>
-                                                {% else %}
-                                                    <span class="valor-negativo" style="font-size.85rem">{{ s|floatformat:2 }}</span>
-                                                {% endif %}
-                                            {% endwith %}
-                                        </td>
-                                        <td>{% if subsub.ativa %}<span style="color:var(--verde);">●</span>{% else %}<span style="color:var(--cinza-claro);">○</span>{% endif %}</td>
-                                        <td style="text-align:right;">
-                                            <a href="#" class="btn btn-secondary btn-sm">Editar</a>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            {% endfor %}
-                        {% empty %}
-                            <tr>
-                                <td colspan="8">
-                                    <div class="empty-state">
-                                        <p>Nenhums conta cadastrada... Crie as suas próprias contas!!!</p>
+                            <!-- Sublinhas Nível 3 -->
+                            {% for sub in linha.sublinhas %}
+                            <tr class="row-n3">
+                                <td class="col-codigo">{{ sub.conta.codigo }}</td>
+                                <td class="col-nome">
+                                    <div class="nome-indent">
+                                        <span class="nivel-bar"></span>
+                                        <span style="color:var(--cinza-medio);">{{ sub.conta.nome }}</span>
                                     </div>
                                 </td>
+                                <td class="col-natureza" style="color:var(--cinza-claro);">{{ sub.conta_get_natureza_display }}</td>
+                                <td class="col-debito">
+                                    {% if sub.debitos %}R$ {{ sub.debitos|brl }}{% else %}<span class="s-zero">-</span>{% endif %}
+                                </td>
+                                <td class="col-credito">
+                                    {% if sub.creditos %}R$ {{ sub.creditos|brl }}{% else %}<span class="s-zero">-</span>{% endif %}
+                                </td>
+                                <td class="col-saldo {% if sub.saldo > 0 %}s-pos{% elif sub.saldo < 0 %}s-neg{% else %}s-zero{% endif %}">
+                                    R$ {{ sub.saldo|brl }}
+                                </td>
+                                <td class="col-saldo_acum {% if sub.saldo_acum > 0 %}s-pos{% elif sub.saldo_acum < 0 %}s-neg{% else %}s-zero{% endif %}">
+                                    R$ {{ sub.saldo_acum|brl }}
+                                </td>
+                                <td class="col-ativa">
+                                    {% if sub.conta.ativa %}<span style="color:var(--verde);">●</span>{% else %}<span style="color:var(--cinza-claro);">○</span>{% endif %}
+                                </td>
+                                <td class="col-acoes">
+                                    <a href="#" class="btn btn-secondary btn-sm">Editar</a>
+                                </td>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                            {% endfor %}
+
+                            <!-- Subtotal da conta pai quando tem filhas -->
+                            {% if linha.tem_filhas %}
+                            <tr class="row-subtotal">
+                                <td colspan="6" style="padding-left:2rem">
+                                    SubTotal - {{ linha.conta.nome }}
+                                </td>
+                                <td class="col-saldo-acum {% if linha.saldo_acum > 0 %}s-pos{% elif linha.saldo_acum < 0 %}s-neg{% else %}s-zero{% endif %}" style="font-size:.85rem;">
+                                    R$ {{ linha.saldo_acum|brl }}
+                                </td>
+                                <td colspan="2"></td>
+                            </tr>
+                            {% endif %}
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" style="text-align:center;padding:2rem;color:var(--cinza-claro);font-size:.9rem;">
+                                    Nenhuma subconta csdastrada para esse grupo...
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                        <!-- Total do Grupo -->
+                         <tfoot>
+                            <tr class="row-total-grupo">
+                                <td colspan="6" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;color:var(--cinza-claro);">
+                                    Total {{ grupo.conta.nome }}
+                                </td>
+                                <td class="col-saldo-acum">
+                                    R$ {{ grupo.saldo_acum|brl }}
+                                </td>
+                                <td colspan="2"></td>
+                            </tr>
+                         </tfoot>
+                    </table>
+                </div>
             </div>
+        </div>
+        {% empty %}
+        <div class="card">
+            <div style="text-align:center;padding:4rem 2rem;color:var(--cinza-claro);">
+                <div style="font-size:3rem;margin-bottom:1rem;">📋</div>
+                <p style="font-size:1rem;font-weight:600;">Nenhuma conta cadastrada</p>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Legenda -->
+        <div style="margin-top:1.5rem;display:flex;gap:1.5rem;flex-wrap:wrap;font-size:.78rem;color:var(--cinza);">
+            <span>∑ = Saldo inclui subcontas</span>
+            <span><span style="color:var(--verde);">●</span> Conta Ativa &nbsp; &nbsp; <span style="color:var(--cinza-claro);">○</span> Inativa</span>
+            <span><span class="s-pos">verde</span> = Saldo Positivo &nbsp; &nbsp; <span class="s-neg">vermelho</span> = Saldo Negativo &nbsp; &nbsp; <span class="s-zero">cinza</span> = Zero</span>
         </div>
     </main>
     <footer>
         Finanças Família M&M - Método das partidas dobradas &copy; {% now "Y" %}
     </footer>
+    <!-- Scripts-->
+    <script src="{% static 'contabil/js/plano_de_contas.js' %}"></script>
 </body>
 </html>

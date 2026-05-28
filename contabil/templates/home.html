@@ -24,18 +24,18 @@
         <div class="kpi-grid mb-4">
             <div class="kpi-card receita">
                 <div class="kpi-label">↑ Receitas desta semana</div>
-                <div class="kpi-value">R$ {{ total_receitas_atual|floatformat:2 }}</div>
+                <div class="kpi-value">R$ {{ total_receitas_atual|brl }}</div>
                 <div class="kpi-sub">{{ receitas_atual.count }} lançamento {{ receitas_atual.count|pluralize }}</div>
             </div>
             <div class="kpi-card despesa">
                 <div class="kpi-label">↓ Despesas desta semana</div>
-                <div class="kpi-value">R$ {{ total_despesas_atual|floatformat:2 }}</div>
+                <div class="kpi-value">R$ {{ total_despesas_atual|brl }}</div>
                 <div class="kpi-sub">{{ despesas_atual.count }} lançamento {{despesas_atual.count|pluralize }}</div>
             </div>
             <div class="kpi-card {% if saldo_atual >= 0 %}saldo-pos{% else %}saldo-neg{% endif %}">
                 <div class="kpi-label">= Saldo da semana</div>
                 <div class="kpi-value">
-                    {% if saldo_atual >= 0 %}+{% endif %}R$ {{ saldo_atual|floatformat:2 }}
+                    {% if saldo_atual >= 0 %}+{% endif %}R$ {{ saldo_atual|brl }}
                 </div>
                 <div class="kpi-sub">{% if saldo_atual >= 0 %}Superávit ✓{% else %}Déficit - Atenção{% endif %}</div>
             </div>
@@ -61,13 +61,13 @@
                                 <div>
                                     <div class="desc">{{ p.descricao }}</div>
                                     <div class="meta">{{ p.data|date:"d/m" }} · {{ p.get_status_display }}</div>
-                                    <span class="valor verde">R$ {{ p.valor_total|floatformat:2 }}</span>
+                                    <span class="valor verde">R$ {{ p.valor_total|brl }}</span>
                                 </div>
                             </a>
                             {% endfor %}
                             <div class="total-row">
                                 <span class="text-cinza text-sm">Total de Receitas</span>
-                                <span class="valor-positivo">R$ {{ total_receitas_atual|floatformat:2 }}</span>
+                                <span class="valor-positivo">R$ {{ total_receitas_atual|brl }}</span>
                             </div>
                         {% else %}
                             <div class="empty-state" style="padding:1.5rem .5rem;">
@@ -86,13 +86,13 @@
                                 <div>
                                     <div class="desc">{{ p.descricao }}</div>
                                     <div class="meta">{{ p.data|date:"d/m" }} · {{ p.get_status_display }}</div>
-                                    <span class="valor vermelho">R$ {{ p.valor_total|floatformat:2 }}</span>
+                                    <span class="valor vermelho">R$ {{ p.valor_total|brl }}</span>
                                 </div>
                             </a>
                             {% endfor %}
                             <div class="total-row">
                                 <span class="text-cinza text-sm">Total de Despesas</span>
-                                <span class="valor-positivo">R$ {{ total_despesas_atual|floatformat:2 }}</span>
+                                <span class="valor-positivo">R$ {{ total_despesas_atual|brl }}</span>
                             </div>
                         {% else %}
                             <div class="empty-state" style="padding:1.5rem .5rem;">
@@ -106,7 +106,7 @@
                 <!-- Saldo da Semana Atual-->
                 <div class="saldo-box {% if saldo_atual >= 0 %}positivo{% else %}negativo{% endif %}">
                     <span class="label">Saldo da Semana Atual</span>
-                    <span class="val">{% if saldo_atual >= 0 %}+{% endif %}R$ {{ saldo_atual|floatformat:2 }}</span>
+                    <span class="val">{% if saldo_atual >= 0 %}+{% endif %}R$ {{ saldo_atual|brl }}</span>
                 </div>
             </div>
         </div>
@@ -130,13 +130,13 @@
                                 <div>
                                     <div class="desc">{{ p.descricao }}</div>
                                     <div class="meta">{{ p.data|date:"d/m" }} · {{ p.get_status_display }}</div>
-                                    <span class="valor verde">R$ {{ p.valor_total|floatformat:2 }}</span>
+                                    <span class="valor verde">R$ {{ p.valor_total|brl }}</span>
                                 </div>
                             </a>
                             {% endfor %}
                             <div class="total-row">
                                 <span class="text-cinza text-sm">Total de Receitas</span>
-                                <span class="valor-positivo">R$ {{ total_receitas_anterior|floatformat:2 }}</span>
+                                <span class="valor-positivo">R$ {{ total_receitas_anterior|brl }}</span>
                             </div>
                         {% else %}
                             <div class="empty-state" style="padding:1.5rem .5rem;">
@@ -155,13 +155,13 @@
                                 <div>
                                     <div class="desc">{{ p.descricao }}</div>
                                     <div class="meta">{{ p.data|date:"d/m" }} · {{ p.get_status_display }}</div>
-                                    <span class="valor vermelho">R$ {{ p.valor_total|floatformat:2 }}</span>
+                                    <span class="valor vermelho">R$ {{ p.valor_total|brl }}</span>
                                 </div>
                             </a>
                             {% endfor %}
                             <div class="total-row">
                                 <span class="text-cinza text-sm">Total de Despesas</span>
-                                <span class="valor-positivo">R$ {{ total_despesas_anterior|floatformat:2 }}</span>
+                                <span class="valor-positivo">R$ {{ total_despesas_anterior|brl }}</span>
                             </div>
                         {% else %}
                             <div class="empty-state" style="padding:1.5rem .5rem;">
@@ -175,7 +175,7 @@
                 <!-- Saldo da Semana Passada-->
                 <div class="saldo-box {% if saldo_anterior >= 0 %}positivo{% else %}negativo{% endif %}">
                     <span class="label">Saldo da Semana Passada</span>
-                    <span class="val">{% if saldo_anterior >= 0 %}+{% endif %}R$ {{ saldo_anterior|floatformat:2 }}</span>
+                    <span class="val">{% if saldo_anterior >= 0 %}+{% endif %}R$ {{ saldo_anterior|brl }}</span>
                 </div>
             </div>
         </div>
@@ -189,7 +189,7 @@
                 </span>
                 {% if proximas_despesas %}
                 <span class="valor-negativo" style="font-size:.9rem;">
-                    Total: R$ {{ total_proximas_despesas|floatformat:2 }}
+                    Total: R$ {{ total_proximas_despesas|brl }}
                 </span>
                 {% endif %}
             </div>
@@ -216,7 +216,7 @@
                             </div>
                         </div>
                         <div>
-                            <div class="valor-prox">R$ {{ p.valor_total|floatformat:2 }}</div>
+                            <div class="valor-prox">R$ {{ p.valor_total|brl }}</div>
                             <div class="status-prox">{{ p.get_status_display }}</div>
                         </div>
                     </a>

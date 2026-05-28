@@ -72,11 +72,11 @@
                             </td>
                             <td>
                                 {% if partida.categoria == 'RECEITA' %}
-                                    <span class="valor-positivo">R$ {{ partida.valor_total|floatformat:2 }}</span>
+                                    <span class="valor-positivo">R$ {{ partida.valor_total|brl }}</span>
                                 {% elif partida.categoria == 'DESPESA' %}
-                                    <span class="valor-negativo">R$ {{ partida.valor_total|floatformat:2 }}</span>
+                                    <span class="valor-negativo">R$ {{ partida.valor_total|brl }}</span>
                                 {% else %}
-                                    <span class="valor-neutro">R$ {{ partida.valor_total|floatformat:2 }}</span>
+                                    <span class="valor-neutro">R$ {{ partida.valor_total|brl }}</span>
                                 {% endif %}
                             </td>
                             <td>

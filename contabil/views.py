@@ -1,6 +1,7 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse_lazy
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, Value
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.contrib import messages
 from django.shortcuts import redirect
@@ -206,9 +207,118 @@ class PartidaDeleteView(DeleteView):
         return super().delete(request, *args, *kwargs)
     
 class PlanoDeContasListView(ListView):
+    """
+    Listagem pormenorizada do Plano de Contas com slaod por conta e
+    saldo acumulado por conta-pai. Todos são calculados em uma única
+    passagem pelo banco(sem N+1 queries).
+    """
     model = PlanoDeContas
     template_name = 'plano-list.html'
-    context_object_name = 'contas'
+    context_object_name = 'grupos'
 
     def get_queryset(self):
-        return PlanoDeContas.objects.filter(conta_pai=None).order_by('codigo')
+        return (
+            PlanoDeContas.objects.select_related('conta_pai').prefetch_related('subcontas__subcontas').order_by('codigo')
+        )
+    
+    def _saldo_proprio(self, conta, debitos_map, creditos_map):
+        d = debitos_map.get(conta.pk, Decimal('0'))
+        c = creditos_map.get(conta.pk, Decimal('0'))
+
+        if conta.natureza == 'DEVEDORA':
+            return d - c
+        
+        return c - d
+    
+    def _saldo_acumulado(self, conta, debitos_map, creditos_map):
+        total = self._saldo_proprio(conta, debitos_map, creditos_map)
+
+        for sub in conta.subcontas.all():
+            total += self._saldo_acumulado(sub, debitos_map, creditos_map)
+
+        return total
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        debitos_qs = (
+            Lancamento.objects.filter(tipo='DEBITO').values('conta_id').annotate(total=Coalesce(Sum('valor'), Value(Decimal('0'))))
+        )
+        creditos_qs = (
+            Lancamento.objects.filter(tipo='CREDITO').values('conta_id').annotate(total=Coalesce(Sum('valor'), Value(Decimal('0'))))
+        )
+        debitos_map = {r['conta_id']: r['total'] for r in debitos_qs}
+        creditos_map = {r['conta_id']: r['total'] for r in creditos_qs}
+        raizes = (
+            PlanoDeContas.objects.filter(conta_pai=None).prefetch_related('subcontas__subcontas__subcontas').order_by('codigo')
+        )
+        TIPO_ORDEM = ['ATIVO', 'PASSIVO', 'PATRIMONIO', 'RECEITA', 'DESPESA']
+        grupos = []
+
+        for raiz in raizes:
+            filhas = sorted(raiz.subcontas.all(), key=lambda c: c.codigo)
+            linhas = []
+
+            for filha in filhas:
+                netas = sorted(filha.subcontas.all(), key=lambda c: c.codigo)
+                sublinhas = []
+
+                for neta in netas:
+                    saldo_neta = self._saldo_proprio(neta, debitos_map, creditos_map)
+                    sublinhas.append({
+                        'conta': neta,
+                        'nivel': 3,
+                        'saldo': saldo_neta,
+                        'saldo_acum': saldo_neta,
+                        'tem_filhas': False,
+                        'debitos': debitos_map.get(neta.pk, Decimal('0')),
+                        'creditos': creditos_map.get(neta.pk, Decimal('0')),
+                    })
+
+                saldo_filha_proprio = self._saldo_proprio(filha, debitos_map, creditos_map)
+                saldo_filha_acum = self._saldo_acumulado(filha, debitos_map, creditos_map)
+                linhas.append({
+                    'conta': filha,
+                    'nivel': 2,
+                    'saldo': saldo_filha_proprio,
+                    'saldo_acum': saldo_filha_acum,
+                    'tem_filhas': bool(netas),
+                    'debitos': debitos_map.get(filha.pk, Decimal('0')),
+                    'creditos': creditos_map.get(filha.pk, Decimal('0')),
+                    'sublinhas': sublinhas,
+                })
+
+            saldo_raiz_proprio =self._saldo_proprio(raiz, debitos_map, creditos_map)
+            saldo_raiz_acum = self._saldo_acumulado(raiz, debitos_map, creditos_map)
+            grupos.append({
+                'conta': raiz,
+                'nivel': 1,
+                'saldo': saldo_raiz_proprio,
+                'saldo_acum': saldo_raiz_acum,
+                'linhas': linhas,
+                'tipo': raiz.tipo,
+            })
+
+        grupos.sort(key=lambda g: TIPO_ORDEM.index(g['tipo']) if g['tipo'] in TIPO_ORDEM else 99)
+
+        def soma_grupos(tipos):
+            return sum(g['saldo_acum'] for g in grupos if g['tipo'] in tipos)
+        
+        total_ativo = soma_grupos(['ATIVO'])
+        total_passivo = soma_grupos(['PASSIVO'])
+        total_patrimonio = soma_grupos(['PATRIMONIO'])
+        total_receitas = soma_grupos(['RECEITA'])
+        total_despesas = soma_grupos(['DESPESA'])
+        resultado = total_receitas - total_despesas
+
+        context.update({
+            'grupos': grupos,
+            'total_ativo': total_ativo,
+            'total_passivo': total_passivo,
+            'total_patrimonio': total_patrimonio,
+            'total_receitas': total_receitas,
+            'total_despesas': total_despesas,
+            'resultado': resultado,
+        })
+
+        return context
