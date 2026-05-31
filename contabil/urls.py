@@ -11,4 +11,6 @@ urlpatterns = [
     path('partidas/<int:pk>/editar/', views.PartidaUpdateView.as_view(), name='partida-update'),
     path('partidas/<int:pk>/excluir/', views.PartidaDeleteView.as_view(), name='partida-delete'),
     path('plano-de-contas/', views.PlanoDeContasListView.as_view(), name='plano-list'),
+    path('plano-de-contas/nova/', views.PlanoDeContasCreateView.as_view(), name='plano-create'),
+    path('plano-de-contas/<int:pk>/editar/', views.PlanoDeContasUpdateView.as_view(), name='plano-update'),
 ]

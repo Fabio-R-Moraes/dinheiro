@@ -1,0 +1,59 @@
+{% include 'partials/head.html' %}
+<body>
+    {% include 'partials/header.html' %}
+    <main>
+        <div class="mb-4">
+            <a href="{% url 'contabil:plano-list' %}" class="text-cinza text-sm" style="text-decoration:none;">← Plano de Contas</a>
+            <h1 style="font-family:var(--font-headings);font-size:1,75rem;margin-top:.25rem;">
+                {% if object %}Editar Conta{% else %}Nova Conta{% endif %}
+            </h1>
+        </div>
+        <div style="max-width:640px;">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Código *</label>
+                                {{ form.codigo }}
+                            </div>
+                            <div class="form-group">
+                                <label>Nome *</label>
+                                {{ form.nome }}
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo *</label>
+                                {{ form.tipo }}
+                            </div>
+                            <div class="form-group">
+                                <label>Natureza *</label>
+                                {{ form.natureza }}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Conta Pai</label>
+                            {{ form.conta_pai }}
+                        </div>
+                        <div class="form-group">
+                            <label>Descrição</label>
+                            {{ form.descricao }}
+                        </div>
+                        <div class="form-group" style="display:flex;align-items:center;gap:.5rem;">
+                            {{ form.ativa }}
+                            <label style="margin:0;font-weught:500;">Conta Ativa</label>
+                        </div>
+                        <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                            <a href="{% url 'contabil:plano-list' %}" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        Finanças Família M&M - Método das partidas dobradas &copy; {% now "Y" %}
+    </footer>
+</body>
+</html>

@@ -9,7 +9,7 @@
                 <h1>Plano de Contas</h1>
                 <p class="subtitle">Saldos por Conta e por Grupo - Todas as Contas exibidas mesmo SEM Movimentação</p>
             </div>
-            <a href="#" class="btn btn-primary">+ Nova Conta</a>
+            <a href="{% url 'contabil:plano-create' %}" class="btn btn-primary">+ Nova Conta</a>
         </div>
 
         <!-- Totais por Tipo -->
@@ -116,7 +116,7 @@
                                     {% if linha.conta.ativa %}<span style="color:var(--verde);">●</span>{% else %}<span style="color:var(--cinza-claro);">○</span>{% endif %}
                                 </td>
                                 <td class="col-acoes">
-                                    <a href="#" class="btn btn-secondary btn-sm">Editar</a>
+                                    <a href="{% url 'contabil:plano-update' linha.conta.pk %}" class="btn btn-secondary btn-sm">Editar</a>
                                 </td>
                             </tr>
 
@@ -147,7 +147,7 @@
                                     {% if sub.conta.ativa %}<span style="color:var(--verde);">●</span>{% else %}<span style="color:var(--cinza-claro);">○</span>{% endif %}
                                 </td>
                                 <td class="col-acoes">
-                                    <a href="#" class="btn btn-secondary btn-sm">Editar</a>
+                                    <a href="{% url 'contabil:plano-update' sub.conta.pk %}" class="btn btn-secondary btn-sm">Editar</a>
                                 </td>
                             </tr>
                             {% endfor %}

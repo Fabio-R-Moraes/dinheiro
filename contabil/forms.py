@@ -17,7 +17,7 @@ class PartidaForm(forms.ModelForm):
 
 class LancamentoForm(forms.ModelForm):
     class Meta:
-        models = Lancamento
+        model = Lancamento
         fields = ['conta', 'tipo', 'valor', 'descricao']
         widgets = {
             'conta': forms.Select(attrs={'class': 'form-control'}),
@@ -44,7 +44,7 @@ LancamentoFormSet = inlineformset_factory(
 
 class PlanoDeContasForm(forms.ModelForm):
     class Meta:
-        models = PlanoDeContas
+        model = PlanoDeContas
         fields = ['codigo', 'nome', 'tipo', 'natureza', 'conta_pai', 'descricao', 'ativa']
         widgets = {
             'codigo': forms.TextInput(attrs={'class': 'form-control'}),

@@ -322,3 +322,24 @@ class PlanoDeContasListView(ListView):
         })
 
         return context
+    
+class PlanoDeContasCreateView(CreateView):
+    model = PlanoDeContas
+    form_class = PlanoDeContasForm
+    template_name = 'plano-form.html'
+    success_url = reverse_lazy('contabil:plano-list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Conta criada com sucesso!!!')
+        return super().form_valid(form)
+
+class PlanoDeContasUpdateView(UpdateView):
+    model = PlanoDeContas
+    form_class = PlanoDeContasForm
+    template_name = 'plano-form.html'
+    success_url = reverse_lazy('contabil:plano-list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Conta atualizada com sucesso!!!')
+        return super().form_valid(form)
+     
