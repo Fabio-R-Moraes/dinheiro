@@ -1,0 +1,82 @@
+{% include 'partials/head.html' %}
+<body>
+    {% include 'partials/header.html' %}
+    <main>
+        <div class="mb-4">
+            <h1 style="font-family:var(--font-optional);font-size:1.75rem;">Livro Razão(Razonete)</h1>
+            <p class="text-cinza text-sm" style="margin-top:.25rem">Razonete de Todas as Contas Ativas</p>
+        </div>
+
+        <div class="grid-2">
+            {% for conta in contas %}
+                {% with lancamentos=conta.lancamentos.all %}
+                    {% if lancamentos %}
+                        <div class="card mb-3">
+                            <div class="card-header" style="background:var(--cinza-escuro);">
+                                <span style="color:var(--branco);font-family:var(--font-optional);font-size:1rem;">
+                                    {{ conta.codigo }} - {{ conta.nome }}
+                                </span>
+                                <span class="badge" style="background:rgba(255, 255, 255, .15);color:var(--branco);">
+                                    {{ conta.get_tipo_display }}
+                                </span>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;">
+                                <!-- Débitos -->
+                                <div style="border-right:2px solid var(--borda);">
+                                    <div style="padding:.5rem .75rem;background:var(--verde-menta);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--verde-escuro);">
+                                        DÉBITO
+                                    </div>
+                                    {% for l in lancamentos %}
+                                        {% if l.tipo == 'DEBITO' %}
+                                            <div style="padding:.5rem .75rem;border-bottom:1px solid var(--borda);font-size:.82rem;">
+                                                <div style="display:flex;justify-content:space-between;">
+                                                    <span style="color:var(--cinza);">{{ l.data|date:"d/m" }}</span>
+                                                    <span style="font-family:var(--font-headings);font-weight:600;color:var(--verde);">{{ l.valor|floatformat:2 }}</span>
+                                                </div>
+                                                {% if l.descricao %}<div style="font-size.75rem;color:var(--cinza-claro);">{{ l.descricao }}</div>{% endif %}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <!-- Créditos -->
+                                <div style="border-right:2px solid var(--borda);">
+                                    <div style="padding:.5rem .75rem;background:var(--vermelho-claro);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--vermelho);">
+                                        CRÉDITO
+                                    </div>
+                                    {% for l in lancamentos %}
+                                        {% if l.tipo == 'CREDITO' %}
+                                            <div style="padding:.5rem .75rem;border-bottom:1px solid var(--borda);font-size:.82rem;">
+                                                <div style="display:flex;justify-content:space-between;">
+                                                    <span style="color:var(--cinza);">{{ l.data|date:"d/m" }}</span>
+                                                    <span style="font-family:var(--font-headings);font-weight:600;color:var(--vermelho);">{{ l.valor|floatformat:2 }}</span>
+                                                </div>
+                                                {% if l.descricao %}<div style="font-size.75rem;color:var(--cinza-claro);">{{ l.descricao }}</div>{% endif %}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <!-- Saldo -->
+                            <div style="padding:.75rem 1rem;background:var(--bg);display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--borda);">
+                                <span style="font-size.8rem;font-weight:700;color:var(--cinza);text-transform:uppercase;letter-spacing:.06em;">Saldo</span>
+                                {% with s=conta.saldo %}
+                                    <span style="font-family:var(font-headings);font-size:1.1rem;font-weight:700;{% if s >= 0 %}color:var(--verde);{% else %}color:var(--vermelho);{% endif %}">
+                                        R$ {{ s|floatformat:2 }}
+                                    </span>
+                                {% endwith %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            {% empty %}
+                <div class="empty-state" style="grid-column:1/-1;">
+                    <p>Nenhum lançamento ainda, crie partidas para ver o Razão...</p>
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+    <footer>
+        Finanças Família M&M - Método das partidas dobradas &copy; {% now "Y" %}
+    </footer>
+</body>
+</html>

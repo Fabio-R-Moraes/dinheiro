@@ -13,4 +13,5 @@ urlpatterns = [
     path('plano-de-contas/', views.PlanoDeContasListView.as_view(), name='plano-list'),
     path('plano-de-contas/nova/', views.PlanoDeContasCreateView.as_view(), name='plano-create'),
     path('plano-de-contas/<int:pk>/editar/', views.PlanoDeContasUpdateView.as_view(), name='plano-update'),
+    path('relatorio/', views.RelatorioView.as_view(), name='relatorio'),
 ]

@@ -342,4 +342,15 @@ class PlanoDeContasUpdateView(UpdateView):
     def form_valid(self, form):
         messages.success(self.request, 'Conta atualizada com sucesso!!!')
         return super().form_valid(form)
+    
+class RelatorioView(TemplateView):
+    """Relatório de Razonete(Livro Razão) por Conta"""
+    template_name = 'relatorio.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        contas = PlanoDeContas.objects.filter(ativa=True).order_by('codigo')
+        context['contas'] = contas 
+        return context
+    
      
